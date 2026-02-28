@@ -1,0 +1,12 @@
+{
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.root": "/",
+  "liveServer.settings.donotShowInfoMsg": true,
+  "liveServer.settings.donotVerifyTags": true,
+  "liveServer.settings.fullReload": true,
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "files.associations": {
+    "*.html": "html"
+  }
+}

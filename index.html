@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>McDonald's Strategic Intelligence Platform | ArcGIS</title>
+
+  <!--
+    ArcGIS JS API 4.30 (CDN, AMD)
+    Must be loaded BEFORE any esri require() calls in app.js
+  -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/dark/main.css">
+  <script src="https://js.arcgis.com/4.30/"></script>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- ═══════════════ API KEY MODAL ═══════════════ -->
+<div id="modal-api" class="on">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <svg viewBox="0 0 64 52" width="56" height="46">
+        <path d="M6 50 L6 13 Q6 3 15 7 L32 31 L49 7 Q58 3 58 13 L58 50"
+              fill="none" stroke="#FFC72C" stroke-width="9"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="modal-ttl">Strategic Intelligence Platform</div>
+    <div class="modal-desc">
+      Enter your <strong style="color:var(--yellow)">ArcGIS API key</strong> to enable live location services:<br>
+      GeoEnrichment &nbsp;&middot;&nbsp; Places API &nbsp;&middot;&nbsp; Geocoding &nbsp;&middot;&nbsp; Routing<br>
+      <span style="opacity:.55;font-size:11px">— or skip to explore with built-in mock data —</span>
+    </div>
+    <input class="modal-inp" id="apiKeyIn" type="text"
+           placeholder="Paste ArcGIS API key here&hellip;" autocomplete="off">
+    <div class="modal-acts">
+      <button class="btn-y" onclick="applyKey()">Activate Services</button>
+      <button class="btn-o" onclick="skipKey()">Use Mock Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div id="hdr">
+  <svg viewBox="0 0 64 52" width="34" height="28">
+    <path d="M6 50 L6 13 Q6 3 15 7 L32 31 L49 7 Q58 3 58 13 L58 50"
+          fill="none" stroke="#FFC72C" stroke-width="9"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div>
+    <div class="brand-name">McDonald's Strategic Intelligence</div>
+    <div class="brand-sub">Powered by ArcGIS Location Intelligence</div>
+  </div>
+  <div class="hdr-sp"></div>
+  <div id="apiBadge" onclick="document.getElementById('modal-api').classList.add('on')">
+    <div id="apiDot"></div>
+    <span id="apiTxt">Configure API Key</span>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB BAR ═══════════════ -->
+<div id="tabs">
+  <button class="tab on"  data-t="overview">    &#128202; Overview</button>
+  <button class="tab"     data-t="supply">      &#128667; Supply Chain</button>
+  <button class="tab"     data-t="demo">        &#128101; Customer Loss</button>
+  <button class="tab"     data-t="competition"> &#9876;&#65039; Value &amp; Competition</button>
+  <button class="tab"     data-t="franchise">   &#127978; Franchisees</button>
+  <button class="tab"     data-t="price">       &#128178; Price Gap</button>
+  <button class="tab"     data-t="drivetru">    &#128663; Drive-Thru AI</button>
+</div>
+
+<!-- ═══════════════ CONTENT PANELS ═══════════════ -->
+<div id="content">
+
+  <!-- ─────────── OVERVIEW ─────────── -->
+  <div class="panel on" id="panel-overview">
+    <div class="ov-in">
+      <div class="ov-title">McDonald's &mdash; 2026 Strategic Challenges</div>
+      <div class="ov-sub">Six critical problems mapped through ArcGIS location intelligence. Click any card to explore on the map.</div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-n r">-8.3%</div><div class="stat-l">Lower-income visits YoY</div></div>
+        <div class="stat"><div class="stat-n r">23%</div><div class="stat-l">Supply routes flagged</div></div>
+        <div class="stat"><div class="stat-n">$2.30</div><div class="stat-l">Price gap same item</div></div>
+        <div class="stat"><div class="stat-n r">~41%</div><div class="stat-l">Franchisees dissatisfied</div></div>
+        <div class="stat"><div class="stat-n">14,034</div><div class="stat-l">US restaurant locations</div></div>
+        <div class="stat"><div class="stat-n r">5.8%</div><div class="stat-l">Drive-thru error rate</div></div>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+  </div>
+
+  <!-- ─────────── SUPPLY CHAIN ─────────── -->
+  <div class="panel" id="panel-supply">
+    <div class="sp">
+      <div class="sp-hd">
+        <div class="sp-ttl">&#128667; Supply Chain Monitor</div>
+        <div class="sp-desc">Global supplier network &middot; Live disruption detection &middot; Risk scoring by commodity &amp; region</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Commodity Filter</div>
+        <div class="tog-row" id="com-filters">
+          <button class="tog on" data-c="all">All</button>
+          <button class="tog" data-c="beef">&#x1F969; Beef</button>
+          <button class="tog" data-c="potato">&#x1F35F; Potato</button>
+          <button class="tog" data-c="bread">&#x1F35E; Bread</button>
+          <button class="tog" data-c="beverage">&#x1F964; Beverage</button>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Disruption Simulation</div>
+        <button class="btn-r" id="btnDisrupt" onclick="simDisrupt()">&#9888; Simulate Disruption</button>
+        <button class="btn-o" id="btnRestore" style="display:none" onclick="restoreRoutes()">&#10003; Restore All Routes</button>
+        <button class="btn-y" onclick="flyGlobal()">&#127757; Reset Global View</button>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Network KPIs</div>
+        <div class="kpi"><div class="kpi-l">Active Suppliers</div><div class="kpi-v" id="kSupp">12</div><div class="kpi-s">Across 6 countries</div></div>
+        <div class="kpi"><div class="kpi-l">Distribution Centers</div><div class="kpi-v">7</div><div class="kpi-s">Global coverage</div></div>
+        <div class="kpi"><div class="kpi-l">Routes at Risk</div><div class="kpi-v r" id="kRisk">3</div><div class="kpi-s">Flagged for disruption</div></div>
+        <div class="kpi"><div class="kpi-l">Total Active Routes</div><div class="kpi-v">22</div><div class="kpi-s">Supplier &rarr; DC &rarr; Restaurants</div></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Live Risk Alerts</div>
+        <div class="al cr"><div class="al-dot p" style="background:var(--red)"></div><div class="al-tx"><div class="al-ti">Marfrig &mdash; S&atilde;o Paulo, Brazil</div>Labor dispute &middot; 2 plants affected &middot; +3 day delay</div></div>
+        <div class="al wn"><div class="al-dot p" style="background:var(--orange)"></div><div class="al-tx"><div class="al-ti">Aviko &mdash; Netherlands</div>Port customs backlog &middot; Rotterdam</div></div>
+        <div class="al wn"><div class="al-dot p" style="background:var(--orange)"></div><div class="al-tx"><div class="al-ti">JBS &mdash; Greeley, Colorado</div>Blizzard warning &middot; 24h delay possible</div></div>
+        <div class="al ok"><div class="al-dot" style="background:var(--green)"></div><div class="al-tx"><div class="al-ti">Tyson Foods &mdash; Springdale, AR</div>Operating at 92% capacity &#10003;</div></div>
+        <div class="al ok"><div class="al-dot" style="background:var(--green)"></div><div class="al-tx"><div class="al-ti">Lamb Weston &mdash; Eagle, ID</div>On schedule &middot; 88% capacity &#10003;</div></div>
+      </div>
+      <!-- Chain reaction report — shown only when disruption is active -->
+      <div class="sp-sec" id="disruption-panel" style="display:none">
+        <div class="lbl">&#9889; Chain Reaction Report</div>
+        <div id="disruption-details"></div>
+      </div>
+
+      <div class="sp-sec">
+        <div class="lbl">Legend</div>
+        <div class="leg"><div class="leg-d" style="background:#DA020E"></div>Beef supplier (circle)</div>
+        <div class="leg"><div class="leg-d" style="background:#FFC72C"></div>Potato supplier (circle)</div>
+        <div class="leg"><div class="leg-d" style="background:#8B5A2B"></div>Bread supplier (circle)</div>
+        <div class="leg"><div class="leg-d" style="background:#00A8FF"></div>Beverage supplier (circle)</div>
+        <div class="leg"><div class="leg-d" style="background:#FFFFFF;border:2px solid #FFC72C"></div>Distribution Center (square)</div>
+        <div class="leg"><div class="leg-d" style="background:#FFC72C;clip-path:polygon(50% 0%,0% 100%,100% 100%)"></div>Restaurant Hub (triangle)</div>
+      </div>
+    </div>
+    <div class="ma" id="supply-map">
+      <div id="dbanner">&#9888; DISRUPTION DETECTED &mdash; Routes offline</div>
+      <div class="mpill"><span class="dot"></span>Real-time supply chain &middot; Animated shipment tracking</div>
+    </div>
+  </div>
+
+  <!-- ─────────── CUSTOMER LOSS ─────────── -->
+  <div class="panel" id="panel-demo">
+    <div class="sp">
+      <div class="sp-hd">
+        <div class="sp-ttl">&#128101; Customer Loss Analysis</div>
+        <div class="sp-desc">GeoEnrichment demographics &middot; Income segmentation &middot; At-risk customer zones</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Income Threshold</div>
+        <input type="range" id="incSlider" min="25000" max="75000" value="45000" oninput="updateIncome(this.value)">
+        <div class="sl-lbl"><span>$25k</span><span id="incVal" style="color:var(--yellow)">$45k</span><span>$75k</span></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Map Layers</div>
+        <div class="tog-row">
+          <button class="tog on" id="togRisk"    onclick="togDemoLayer('risk',this)">At-Risk Zones</button>
+          <button class="tog on" id="togDensity" onclick="togDemoLayer('density',this)">Restaurant Density</button>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">GeoEnrichment Services</div>
+        <button class="btn-y" onclick="doEnrich()">&#128269; Enrich Selected Area</button>
+        <button class="btn-o" onclick="addLivingAtlas()">&#128202; Add Living Atlas Layer</button>
+        <div id="enrichOut" style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5">Click map, then &ldquo;Enrich&rdquo; to query live demographics</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">At-Risk Customer Zones</div>
+        <div id="riskList"></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Impact KPIs</div>
+        <div class="kpi"><div class="kpi-l">Households Below Threshold</div><div class="kpi-v r">42M</div><div class="kpi-s">Within 1 mi of McDonald's</div></div>
+        <div class="kpi"><div class="kpi-l">Visit Decline (low-income)</div><div class="kpi-v r">-8.3%</div><div class="kpi-s">YoY Q3 2025</div></div>
+        <div class="kpi"><div class="kpi-l">Revenue at Risk</div><div class="kpi-v">$4.2B</div><div class="kpi-s">Annual exposure estimate</div></div>
+      </div>
+    </div>
+    <div class="ma" id="demo-map">
+      <div class="mpill"><span class="dot"></span>GeoEnrichment ready &middot; Click any area to enrich demographics</div>
+    </div>
+  </div>
+
+  <!-- ─────────── VALUE & COMPETITION ─────────── -->
+  <div class="panel" id="panel-competition">
+    <div class="sp">
+      <div class="sp-hd">
+        <div class="sp-ttl">&#9876;&#65039; Value &amp; Competition</div>
+        <div class="sp-desc">ArcGIS Places API &middot; Competitor proximity mapping &middot; Drive-time catchment analysis</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Search Location</div>
+        <input class="inp" id="compQ" placeholder="Enter city or address&hellip;" onkeydown="if(event.key==='Enter')findComp()">
+        <button class="btn-y" onclick="findComp()">&#128269; Find Competitors Nearby</button>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Drive-Time Catchment</div>
+        <select class="sel" id="dtMin">
+          <option value="3">3-minute drive-time</option>
+          <option value="5" selected>5-minute drive-time</option>
+          <option value="10">10-minute drive-time</option>
+          <option value="15">15-minute drive-time</option>
+        </select>
+        <button class="btn-o" onclick="drawCatchment()">Generate Service Areas</button>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Competitor Filter</div>
+        <div class="tog-row" id="brandFilters">
+          <button class="tog on" data-b="bk">Burger King</button>
+          <button class="tog on" data-b="wendys">Wendy's</button>
+          <button class="tog on" data-b="taco">Taco Bell</button>
+          <button class="tog on" data-b="chick">Chick-fil-A</button>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Analysis Results</div>
+        <div id="compOut"><div style="color:var(--muted);font-size:11px">Search a location or click map to analyze competitive pressure</div></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Market KPIs</div>
+        <div class="kpi"><div class="kpi-l">Avg. Competitors Within 5-min</div><div class="kpi-v r">4.7</div><div class="kpi-s">Per McDonald's location (US avg)</div></div>
+        <div class="kpi"><div class="kpi-l">Price Premium vs. Competitors</div><div class="kpi-v r">+18%</div><div class="kpi-s">Since 2020 &mdash; perception gap</div></div>
+        <div class="kpi"><div class="kpi-l">Chick-fil-A Satisfaction Lead</div><div class="kpi-v r">23 states</div><div class="kpi-s">Now outscoring McDonald's</div></div>
+      </div>
+    </div>
+    <div class="ma" id="competition-map">
+      <div class="mpill"><span class="dot"></span>Places API ready &middot; McDonald's locations vs. competitors</div>
+    </div>
+  </div>
+
+  <!-- ─────────── FRANCHISEE NETWORK ─────────── -->
+  <div class="panel" id="panel-franchise">
+    <div class="sp">
+      <div class="sp-hd">
+        <div class="sp-ttl">&#127978; Franchisee Network</div>
+        <div class="sp-desc">14,000+ US locations &middot; Performance tiers &middot; Operator satisfaction mapping</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Performance Tier</div>
+        <div class="tog-row" id="tierFilter">
+          <button class="tog on" data-ti="all">All</button>
+          <button class="tog on" data-ti="high">High</button>
+          <button class="tog on" data-ti="medium">Average</button>
+          <button class="tog on" data-ti="low">Underperforming</button>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Analytics</div>
+        <div class="kpi"><div class="kpi-l">Total US Locations</div><div class="kpi-v">14,034</div><div class="kpi-s">95% franchised model</div></div>
+        <div class="kpi"><div class="kpi-l">High Performers</div><div class="kpi-v g">38%</div><div class="kpi-s">&gt;$2.2M annual revenue</div></div>
+        <div class="kpi"><div class="kpi-l">Franchisee Satisfaction</div><div class="kpi-v r">59%</div><div class="kpi-s">Down from 71% in 2023</div></div>
+        <div class="kpi"><div class="kpi-l">Bill of Rights Signatories</div><div class="kpi-v r">~41%</div><div class="kpi-s">Opposing value pricing strategy</div></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Legend</div>
+        <div class="leg"><div class="leg-d" style="background:#22C55E"></div>High Performer (&gt;$2.2M/yr)</div>
+        <div class="leg"><div class="leg-d" style="background:#FFC72C"></div>Average ($1.6&ndash;$2.2M/yr)</div>
+        <div class="leg"><div class="leg-d" style="background:#DA020E"></div>Underperforming (&lt;$1.6M/yr)</div>
+      </div>
+    </div>
+    <div class="ma" id="franchise-map">
+      <div class="mpill"><span class="dot"></span>Franchise network &middot; Click any location for details</div>
+    </div>
+  </div>
+
+  <!-- ─────────── PRICE GAP ─────────── -->
+  <div class="panel" id="panel-price">
+    <div class="sp">
+      <div class="sp-hd">
+        <div class="sp-ttl">&#128178; Price Inconsistency</div>
+        <div class="sp-desc">Big Mac price variance &middot; City-level geocoding &middot; Pricing equity heatmap</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Geocoding Search</div>
+        <input class="inp" id="priceQ" placeholder="Search city or ZIP code&hellip;" onkeydown="if(event.key==='Enter')geoPrice()">
+        <button class="btn-y" onclick="geoPrice()">&#128205; Find Prices Near Location</button>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Price Range Filter (show up to)</div>
+        <input type="range" id="priceRange" min="5.00" max="8.00" step="0.10" value="8.00" oninput="updatePriceRange(this.value)">
+        <div class="sl-lbl"><span>$5.00</span><span id="priceRangeVal" style="color:var(--yellow)">$8.00</span><span>$8.00</span></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Big Mac Prices by City</div>
+        <table class="tbl"><thead><tr><th>City</th><th>Price</th><th>vs. Avg</th></tr></thead><tbody id="priceTbl"></tbody></table>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Pricing KPIs</div>
+        <div class="kpi"><div class="kpi-l">Largest Single Price Gap</div><div class="kpi-v r">$2.30</div><div class="kpi-s">Boise $5.19 &rarr; NYC $7.49</div></div>
+        <div class="kpi"><div class="kpi-l">National Average</div><div class="kpi-v">$6.04</div><div class="kpi-s">Big Mac &mdash; Q1 2026</div></div>
+        <div class="kpi"><div class="kpi-l">Price Increase Since 2020</div><div class="kpi-v r">+42%</div><div class="kpi-s">Driven by labor &amp; commodity inflation</div></div>
+      </div>
+    </div>
+    <div class="ma" id="price-map">
+      <div class="mpill"><span class="dot"></span>Big Mac Index &middot; US city-level pricing variance</div>
+    </div>
+  </div>
+
+  <!-- ─────────── DRIVE-THRU AI ─────────── -->
+  <div class="panel" id="panel-drivetru">
+    <div class="sp">
+      <div class="sp-hd">
+        <div class="sp-ttl">&#128663; Drive-Thru AI Intelligence</div>
+        <div class="sp-desc">Queue optimization &middot; Order accuracy heatmap &middot; ArcGIS Route + Traffic services</div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Find Location</div>
+        <input class="inp" id="dtQ" placeholder="Search drive-thru location&hellip;" onkeydown="if(event.key==='Enter')findDT()">
+        <button class="btn-y" onclick="findDT()">&#128269; Analyze Location</button>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Analysis Layers</div>
+        <div class="tog-row">
+          <button class="tog on" onclick="this.classList.toggle('on')">Queue Time</button>
+          <button class="tog on" onclick="this.classList.toggle('on')">Order Accuracy</button>
+          <button class="tog on" onclick="this.classList.toggle('on')">Traffic Flow</button>
+          <button class="tog on" onclick="this.classList.toggle('on')">AI Deployed</button>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">ArcGIS Route Analysis</div>
+        <button class="btn-y" onclick="runRoute()">&#128506; Optimize Drive-Thru Routes</button>
+        <button class="btn-o" onclick="drawServiceArea()">&#8987; Generate Service Area</button>
+        <div id="routeOut" style="margin-top:6px;font-size:11px;color:var(--muted)"></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">AI Recommendations</div>
+        <div id="aiRecs"></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Drive-Thru KPIs</div>
+        <div class="kpi"><div class="kpi-l">Avg. Wait Time (US)</div><div class="kpi-v r">5.4 min</div><div class="kpi-s">Target: &lt;4 min with AI</div></div>
+        <div class="kpi"><div class="kpi-l">Order Accuracy Rate</div><div class="kpi-v">94.2%</div><div class="kpi-s">Target: 97%+ post AI deploy</div></div>
+        <div class="kpi"><div class="kpi-l">AI Deployment Progress</div><div class="kpi-v g">47%</div><div class="kpi-s">US drive-thrus upgraded in 2026</div></div>
+      </div>
+      <div class="sp-sec">
+        <div class="lbl">Legend</div>
+        <div class="leg"><div class="leg-d" style="background:#22C55E"></div>Fast (&lt;4 min avg wait)</div>
+        <div class="leg"><div class="leg-d" style="background:#FFC72C"></div>Moderate (4&ndash;6 min)</div>
+        <div class="leg"><div class="leg-d" style="background:#DA020E"></div>Slow (&gt;6 min)</div>
+      </div>
+    </div>
+    <div class="ma" id="drivetru-map">
+      <div class="mpill"><span class="dot"></span>Drive-thru intelligence &middot; ArcGIS Route &amp; Traffic services</div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!--
+  App scripts loaded at end of body (DOM must be ready before app.js runs)
+  data.js must precede app.js — app.js references SUPPS, DCS, ROUTES, etc.
+-->
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
