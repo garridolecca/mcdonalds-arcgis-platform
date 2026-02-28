@@ -45,6 +45,43 @@ function skipKey() {
   document.getElementById('modal-api').classList.remove('on');
 }
 
+/* ── Mobile panel/map toggle ── */
+// Cycles: default (split) → map-only → panel-only → default
+(function() {
+  var mobState = 0; // 0=default/split, 1=map, 2=panel
+  var mobBtn = document.getElementById('mobToggle');
+  var icons = ['\u2630', '\u{1F5C2}', '\u{1F5FA}']; // ☰, 🗂, 🗺
+  window.toggleMobileView = function() {
+    mobState = (mobState + 1) % 3;
+    var panels = document.querySelectorAll('.panel:not(#panel-overview)');
+    panels.forEach(function(p) {
+      p.classList.remove('mob-map', 'mob-panel');
+      if (mobState === 1) p.classList.add('mob-map');
+      else if (mobState === 2) p.classList.add('mob-panel');
+    });
+    mobBtn.textContent = icons[mobState];
+    // Resize all active map views after toggle
+    setTimeout(function() {
+      Object.keys(window.VIEWS).forEach(function(k) {
+        if (window.VIEWS[k]) window.VIEWS[k].resize();
+      });
+    }, 100);
+  };
+})();
+
+/* ── Orientation / resize handling for maps ── */
+window.addEventListener('resize', (function() {
+  var timer;
+  return function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      Object.keys(window.VIEWS).forEach(function(k) {
+        if (window.VIEWS[k]) window.VIEWS[k].resize();
+      });
+    }, 200);
+  };
+})());
+
 /* ════════════════════════════════════════════
    ArcGIS AMD require()
 ════════════════════════════════════════════ */

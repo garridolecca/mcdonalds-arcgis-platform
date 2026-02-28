@@ -192,3 +192,124 @@ input[type=range] { width:100%; accent-color:var(--yellow); margin:4px 0; }
 .modal-inp:focus { outline: none; border-color: var(--bord-y); }
 .modal-acts { display: flex; gap: 8px; }
 .modal-acts .btn-y { margin-bottom: 0; }
+
+/* ════════ MOBILE PANEL TOGGLE ════════ */
+.mob-toggle {
+  display: none; /* hidden on desktop */
+  position: fixed; bottom: 20px; right: 16px; z-index: 500;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--yellow); color: #111; border: none;
+  font-size: 20px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  transition: transform .2s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-toggle:active { transform: scale(.92); }
+
+/* ════════════════════════════════════════════
+   TABLET (768px–1024px)
+════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .sp { width: 240px; }
+  .ov-in { padding: 16px; }
+  .pgrid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .stat { padding: 10px 12px; }
+  .stat-n { font-size: 20px; }
+  .pc { padding: 14px; }
+}
+
+/* ════════════════════════════════════════════
+   PHONE (<768px)
+════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  html, body { font-size: 14px; }
+
+  /* ─── Header ─── */
+  #hdr { height: 48px; padding: 0 10px; gap: 8px; }
+  #hdr > svg { width: 26px; height: 22px; }
+  .brand-name { font-size: 13px; }
+  .brand-sub { display: none; }
+  #apiBadge { padding: 4px 8px; font-size: 10px; }
+  #apiBadge #apiTxt { display: none; }
+
+  /* ─── Tabs ─── */
+  #tabs { top: 48px; height: 40px; }
+  .tab { padding: 0 10px; font-size: 11px; gap: 3px; }
+
+  /* ─── Content offset ─── */
+  #content { top: 88px; }
+
+  /* ─── Panel layout: stack vertically ─── */
+  .panel.on { flex-direction: column; }
+  #panel-overview.on { display: block; }
+
+  .sp {
+    width: 100%; height: 45%; min-height: 200px;
+    border-right: none; border-bottom: 1px solid var(--border);
+    overflow-y: auto;
+  }
+  .ma { flex: 1; min-height: 200px; }
+
+  /* Panel hidden state for mobile toggle */
+  .panel.mob-map .sp { display: none; }
+  .panel.mob-map .ma { flex: 1; height: 100%; }
+  .panel.mob-panel .ma { display: none; }
+  .panel.mob-panel .sp { height: 100%; flex: 1; }
+
+  /* ─── Show mobile toggle FAB ─── */
+  .mob-toggle { display: flex; align-items: center; justify-content: center; }
+
+  /* ─── Overview ─── */
+  .ov-in { padding: 14px 12px; }
+  .ov-title { font-size: 18px; }
+  .ov-sub { font-size: 12px; }
+  .stats-row { gap: 6px; }
+  .stat { padding: 8px 10px; flex: 1 1 calc(50% - 6px); min-width: 0; }
+  .stat-n { font-size: 18px; }
+  .stat-l { font-size: 9px; }
+  .pgrid { grid-template-columns: 1fr; gap: 10px; }
+  .pc { padding: 12px; }
+  .pc-num { font-size: 24px; }
+  .pc-ttl { font-size: 13px; }
+
+  /* ─── Side panel components ─── */
+  .sp-hd { padding: 10px 12px; }
+  .sp-ttl { font-size: 13px; }
+  .sp-sec { padding: 10px 12px; }
+  .lbl { font-size: 10px; margin-bottom: 6px; }
+
+  .kpi { padding: 8px 10px; }
+  .kpi-v { font-size: 18px; }
+
+  /* Touch-friendly buttons & inputs */
+  .btn-y, .btn-o, .btn-r { padding: 11px; font-size: 13px; }
+  .tog { padding: 6px 11px; font-size: 12px; }
+  select.sel { padding: 10px; font-size: 14px; }
+  input.inp { padding: 10px; font-size: 14px; }
+  .modal-inp { padding: 12px; font-size: 14px; }
+
+  /* ─── Modal ─── */
+  .modal-box { padding: 20px 16px; border-radius: 8px; }
+  .modal-ttl { font-size: 16px; }
+  .modal-desc { font-size: 12px; }
+  .modal-acts { flex-direction: column; }
+  .modal-acts .btn-y, .modal-acts .btn-o { margin-bottom: 0; }
+
+  /* ─── Map elements ─── */
+  .mpill { font-size: 9px; padding: 4px 10px; bottom: 70px; white-space: normal; text-align: center; max-width: 80%; }
+  #dbanner { font-size: 11px; padding: 6px 12px; white-space: normal; text-align: center; max-width: 90%; }
+
+  /* ─── Table scroll ─── */
+  .tbl { font-size: 11px; }
+  .sp-sec:has(.tbl) { overflow-x: auto; }
+}
+
+/* ════════════════════════════════════════════
+   SMALL PHONE (<400px)
+════════════════════════════════════════════ */
+@media (max-width: 400px) {
+  .stat { flex: 1 1 100%; }
+  .ov-title { font-size: 16px; }
+  .kpi-v { font-size: 16px; }
+  .tab { padding: 0 7px; font-size: 10px; }
+}
